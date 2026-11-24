@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home Manager – volantino A5 fronte/retro</title>
+<!--
+  SORGENTE MODIFICABILE DEL VOLANTINO (A5, fronte e retro).
+  Non aprire questo file per stampare: contiene segnaposto {{...}}.
+  Genera il volantino con:  npm run volantino -- https://INDIRIZZO-DELL-APP/
+  (senza indirizzo crea la bozza "volantino-bozza.*", senza QR code).
+  Testi e colori si cambiano qui; l'indirizzo e il QR code vengono inseriti dallo script.
+-->
+<style>
+  @page { size: 148mm 210mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1e293b; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #cbd5e1; }
+  .page { position: relative; width: 148mm; height: 210mm; overflow: hidden; background: #fffdf8; break-after: page; page-break-after: always; margin: 0 auto; }
+  .page:last-child { break-after: auto; page-break-after: auto; }
+  @media screen { .page { margin: 8mm auto; box-shadow: 0 2mm 8mm rgba(0,0,0,.25); } }
+  .frame { position: absolute; inset: 0; width: 148mm; height: 210mm; }
+  .content { position: absolute; inset: 17mm 16mm; display: flex; flex-direction: column; }
+
+  /* FRONTE */
+  .brand { display: flex; align-items: center; justify-content: center; gap: 4mm; margin-top: 2mm; }
+  .brand svg { width: 20mm; height: 20mm; }
+  .brand h1 { margin: 0; font-size: 31pt; line-height: 1; letter-spacing: -.5pt; color: #1e3a8a; }
+  .claim { text-align: center; font-size: 15pt; line-height: 1.3; margin: 7mm 2mm 0; color: #334155; }
+  .claim b { color: #1d4ed8; }
+  .scan { margin-top: auto; text-align: center; }
+  .qrrow { display: flex; align-items: center; justify-content: center; gap: 6mm; }
+  .qr { width: 54mm; height: 54mm; background: #fff; border: 1.2mm solid #1e3a8a; border-radius: 4mm; padding: 2.5mm; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .qr.placeholder { border-style: dashed; border-color: #b45309; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10.5pt; color: #92400e; line-height: 1.3; padding: 4mm; }
+  .qrhouse svg { width: 30mm; height: 30mm; }
+  .scan p { margin: 4mm 0 2mm; font-size: 13pt; font-weight: 600; }
+  .url { display: inline-block; max-width: 100%; font-size: 11pt; font-weight: 600; color: #1e3a8a; background: #e0e7ff; border-radius: 3mm; padding: 2mm 4mm; word-break: break-all; }
+  .url.placeholder { color: #92400e; background: #fef3c7; font-weight: 500; }
+  .foot { text-align: center; font-size: 10pt; color: #64748b; margin-top: 4mm; }
+  .bozza { position: absolute; top: 12.5mm; left: 50%; transform: translateX(-50%); background: #dc2626; color: #fff; font-size: 8.5pt; font-weight: 700; padding: 1mm 4mm; border-radius: 2mm; white-space: nowrap; z-index: 3; }
+
+  /* RETRO */
+  h2 { margin: 0 0 3mm; font-size: 19pt; color: #1e3a8a; text-align: center; }
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 3mm; }
+  ol.steps li { display: flex; gap: 3.5mm; align-items: flex-start; font-size: 11.5pt; line-height: 1.3; }
+  ol.steps .n { flex: none; width: 8mm; height: 8mm; border-radius: 50%; background: #1d4ed8; color: #fff; font-weight: 700; font-size: 12pt; display: flex; align-items: center; justify-content: center; margin-top: .3mm; }
+  ol.steps b { color: #1e3a8a; }
+  .box { border-radius: 3.5mm; padding: 3mm 4mm; font-size: 10.5pt; line-height: 1.3; margin-top: 3.5mm; }
+  .box b { display: block; font-size: 11.5pt; margin-bottom: .8mm; }
+  .privacy { background: #dcfce7; border: .5mm solid #16a34a; color: #14532d; }
+  .sync { background: #dbeafe; border: .5mm solid #2563eb; color: #1e3a8a; }
+  .tip { background: #fef3c7; border: .5mm solid #d97706; color: #78350f; }
+  .back-url { margin-top: auto; text-align: center; font-size: 10.5pt; color: #475569; }
+  .back-url strong { color: #1e3a8a; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="casa" viewBox="0 0 100 100">
+      <path d="M50 8 L96 46 L88 46 L88 90 L12 90 L12 46 L4 46 Z" fill="currentColor"/>
+      <path d="M50 8 L96 46 L4 46 Z" fill="currentColor" opacity=".78"/>
+      <rect x="42" y="60" width="16" height="30" rx="2" fill="#fffdf8"/>
+      <rect x="20" y="54" width="14" height="14" rx="2" fill="#fffdf8"/>
+      <rect x="66" y="54" width="14" height="14" rx="2" fill="#fffdf8"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===================== FRONTE ===================== -->
+<section class="page" id="fronte">
+  {{CORNICE}}
+  {{BOZZA}}
+  <div class="content">
+    <div class="brand">
+      <svg style="color:#1d4ed8"><use href="#casa"/></svg>
+      <h1>Home Manager</h1>
+    </div>
+    <p class="claim">Bollette, scadenze, lista della spesa e inventario: <b>la tua casa in ordine</b>, sempre con te, dal telefono e dal computer.</p>
+
+    <div class="scan">
+      <div class="qrrow">
+        {{QR}}
+        <div class="qrhouse"><svg style="color:#f59e0b"><use href="#casa"/></svg></div>
+      </div>
+      <p>Inquadra il QR code con la fotocamera</p>
+      {{URL}}
+      <div class="foot">oppure scrivi l’indirizzo qui sopra nel browser</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RETRO ===================== -->
+<section class="page" id="retro">
+  {{CORNICE}}
+  <div class="content">
+    <h2>Come iniziare in 4 passi</h2>
+    <ol class="steps">
+      <li><span class="n">1</span><span><b>Apri il link</b> inquadrando il QR code (o scrivendo l’indirizzo) nel browser del telefono o del computer.</span></li>
+      <li><span class="n">2</span><span><b>Crea il tuo account</b> con email e password. Se ricevi un’email di conferma, apri il link che contiene.</span></li>
+      <li><span class="n">3</span><span><b>Entra nella tua casa</b> e dalle un nome: all’inizio è vuota, pronta per i tuoi dati.</span></li>
+      <li><span class="n">4</span><span><b>Aggiungi</b> spese e bollette, scadenze, oggetti di casa e articoli della spesa.</span></li>
+    </ol>
+
+    <div class="box privacy"><b>🔒 Ognuno ha la propria casa</b>Ogni persona ha il proprio accesso (login) e la propria casa privata. I dati non sono condivisi con altri familiari e nessuno può vedere i tuoi.</div>
+    <div class="box sync"><b>🔄 Sempre aggiornata</b>Accedendo con lo stesso account da telefono, tablet o computer ritrovi gli stessi dati, sincronizzati.</div>
+    <div class="box tip"><b>📱 Su iPhone</b>Apri il link con Safari, tocca Condividi e poi «Aggiungi alla schermata Home»: avrai l’icona come una vera app.</div>
+
+    <div class="back-url">{{URL_RETRO}}</div>
+  </div>
+</section>
+
+</body>
+</html>

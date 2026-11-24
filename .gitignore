@@ -3,3 +3,11 @@ dist/
 release/
 *.log
 .DS_Store
+
+.env
+.env.*
+!.env.example
+out/
+docs/volantino/qr-*.png
+docs/volantino/.pdf-profile-*
+docs/guida-rapida/.pdf-profile-*

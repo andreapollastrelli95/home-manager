@@ -1,0 +1,61 @@
+# Pubblica su GitHub Pages:
+#  - alla radice  → la DEMO (dati fittizi, nessun login), come oggi;
+#  - in /app/     → la versione con account (Supabase), solo se i "secrets" sono configurati.
+# Prima volta: Settings → Pages → Build and deployment → Source = "GitHub Actions".
+# Secrets/variabili: Settings → Secrets and variables → Actions (vedi docs/configurazione-supabase.md).
+name: Pubblica
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Demo alla radice
+      - run: npx tsc --noEmit && npx vite build --mode demo --outDir _site
+      # App con account in /app/ (solo con la configurazione Supabase; la chiave "anon" è pubblica per progettazione)
+      - name: Versione con account
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_ASSISTANT_ENABLED: ${{ vars.VITE_ASSISTANT_ENABLED }}
+          VITE_DEMO_URL: ../
+        run: |
+          if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_ANON_KEY" ]; then
+            npx vite build --outDir _site/app
+            echo "Versione con account pubblicata in /app/"
+          else
+            echo "::warning::Secrets Supabase non configurati: pubblico solo la demo. Vedi docs/configurazione-supabase.md"
+          fi
+      - run: touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
