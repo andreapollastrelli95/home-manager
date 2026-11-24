@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { DEMO_URL, type ConfigProblem } from '../lib/config'
+import { DEMO_URL, RESET_ENABLED, type ConfigProblem } from '../lib/config'
 
 const input = 'border border-slate-300 rounded-lg px-3 py-3 text-base w-full bg-white'
 const primary = 'w-full rounded-lg bg-blue-600 text-white py-3 text-base font-medium disabled:opacity-60'
@@ -134,7 +134,8 @@ export function AuthScreen({ sb }: { sb: SupabaseClient }) {
         </button>
       </form>
       <div className="mt-3 text-center text-sm">
-        {view === 'login' && <button className="text-blue-600 py-2" onClick={() => go('forgot')}>Password dimenticata?</button>}
+        {view === 'login' && RESET_ENABLED && <button className="text-blue-600 py-2" onClick={() => go('forgot')}>Password dimenticata?</button>}
+        {view === 'login' && !RESET_ENABLED && <span className="text-slate-500">Hai dimenticato la password? Chiedi aiuto a chi gestisce l’app.</span>}
         {view === 'forgot' && <button className="text-blue-600 py-2" onClick={() => go('login')}>← Torna all’accesso</button>}
       </div>
       <p className="text-xs text-slate-500 text-center mt-3">

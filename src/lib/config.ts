@@ -10,6 +10,8 @@ export const MODE: AppMode = import.meta.env.MODE === 'demo' ? 'demo' : import.m
 export const SUPABASE_URL = String(import.meta.env.VITE_SUPABASE_URL ?? '').trim()
 export const SUPABASE_ANON_KEY = String(import.meta.env.VITE_SUPABASE_ANON_KEY ?? '').trim()
 export const ASSISTANT_ENABLED = import.meta.env.VITE_ASSISTANT_ENABLED === 'true'
+// «Password dimenticata?» richiede un servizio email (SMTP) configurato su Supabase: visibile solo se attivato
+export const RESET_ENABLED = import.meta.env.VITE_PASSWORD_RESET_ENABLED === 'true'
 export const DEMO_URL = String(import.meta.env.VITE_DEMO_URL ?? '').trim()
 
 // Una chiave "service_role" / "secret" nel client darebbe accesso a tutti i dati: la rifiutiamo.

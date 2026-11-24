@@ -33,6 +33,7 @@ Cosa fa lo schema: abilita RLS su tutte le tabelle, toglie ogni permesso a chi n
 - **Email di conferma e recupero password**: con il servizio email predefinito di Supabase l'invio è molto limitato (pochi messaggi all'ora e, nei progetti nuovi, solo verso gli indirizzi dei membri del team). Per far registrare i familiari hai due strade:
   - **Consigliata**: configura un tuo servizio email in **Authentication → Emails → SMTP Settings** (esistono servizi con piano gratuito, per esempio Brevo o Resend). Così funzionano conferma email e «Password dimenticata?».
   - **Più semplice, meno sicura**: disattiva *Confirm email*. Gli account sono utilizzabili subito, ma chiunque conosca l'indirizzo può registrarsi con qualsiasi email, e il recupero password continua a richiedere un servizio email funzionante.
+- Finché non hai un servizio email, nell'app il link «Password dimenticata?» è nascosto. Dopo aver configurato l'SMTP crea in GitHub (Variables) `VITE_PASSWORD_RESET_ENABLED` = `true` e rilancia la pubblicazione.
 - I link ricevuti per email vanno aperti **sullo stesso dispositivo e browser** da cui sono stati richiesti (l'app usa il flusso PKCE).
 
 ## 4. Chiavi del progetto
