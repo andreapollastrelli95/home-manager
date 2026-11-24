@@ -28,7 +28,7 @@ Cosa fa lo schema: abilita RLS su tutte le tabelle, toglie ogni permesso a chi n
 
 - **Authentication → Sign In / Providers → Email**: lascia attivo l'accesso con email e password. Imposta la lunghezza minima della password a **8**.
 - **Authentication → URL Configuration**:
-  - *Site URL*: l'indirizzo dell'app con login, es. `https://andreapollastrelli95.github.io/home-manager-demo/`
+  - *Site URL*: l'indirizzo dell'app con login, es. `https://andreapollastrelli95.github.io/home-manager/`
   - *Redirect URLs*: aggiungi lo stesso indirizzo (e `http://localhost:5173/` se la provi sul computer).
 - **Email di conferma e recupero password**: con il servizio email predefinito di Supabase l'invio è molto limitato (pochi messaggi all'ora e, nei progetti nuovi, solo verso gli indirizzi dei membri del team). Per far registrare i familiari hai due strade:
   - **Consigliata**: configura un tuo servizio email in **Authentication → Emails → SMTP Settings** (esistono servizi con piano gratuito, per esempio Brevo o Resend). Così funzionano conferma email e «Password dimenticata?».

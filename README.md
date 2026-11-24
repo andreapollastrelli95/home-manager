@@ -4,7 +4,7 @@ Gestionale domestico: spese e bollette, scadenze e manutenzioni, inventario, lis
 
 > **La demo (`/demo/`) usa dati fittizi.** Nella demo non c'è nessun account: quello che inserisci resta solo nel tuo browser e **non** si sincronizza tra persone o dispositivi. Non è un archivio privato e non va usata per dati veri.
 
-**[Apri l'app](https://andreapollastrelli95.github.io/home-manager-demo/)** (con account personali, da configurare una volta) · **[Prova la demo](https://andreapollastrelli95.github.io/home-manager-demo/demo/)**. Configurazione: [docs/configurazione-supabase.md](docs/configurazione-supabase.md).
+**[Apri l'app](https://andreapollastrelli95.github.io/home-manager/)** (con account personali, da configurare una volta) · **[Prova la demo](https://andreapollastrelli95.github.io/home-manager/demo/)**. Configurazione: [docs/configurazione-supabase.md](docs/configurazione-supabase.md).
 
 | Home (demo) | Spese e bollette (demo) | Telefono (demo) |
 |---|---|---|
