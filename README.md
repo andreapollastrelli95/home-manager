@@ -46,7 +46,7 @@ Per attivare gli account: crea un progetto [Supabase](https://supabase.com), ese
 ## Materiale da distribuire
 
 - [Guida rapida per gli utenti (PDF)](docs/guida-rapida/guida-rapida.pdf) · sorgente `docs/guida-rapida/guida-rapida.html`, rigenerabile con `npm run guida`.
-- Volantino A5 fronte/retro: bozza in `docs/volantino/volantino-bozza.pdf` (**senza QR**, perché l'app con login non è ancora pubblicata). Con l'indirizzo definitivo: `npm run volantino -- https://INDIRIZZO/ --verifica` crea il PDF con QR reale. Sorgente: `docs/volantino/volantino.template.html`.
+- [Volantino A5 fronte/retro (PDF)](docs/volantino/volantino.pdf) con QR verso l'app · sorgente `docs/volantino/volantino.template.html`; per rigenerarlo con un altro indirizzo: `npm run volantino -- https://INDIRIZZO/ --verifica`.
 
 ## Come è fatto
 
