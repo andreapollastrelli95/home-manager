@@ -1,6 +1,6 @@
 # Pubblica su GitHub Pages:
-#  - alla radice  → la DEMO (dati fittizi, nessun login), come oggi;
-#  - in /app/     → la versione con account (Supabase), solo se i "secrets" sono configurati.
+#  - alla radice  → l'APP CON ACCOUNT (Supabase), se i "secrets" sono configurati;
+#  - in /demo/    → la demo con dati fittizi (senza secrets la demo resta alla radice).
 # Prima volta: Settings → Pages → Build and deployment → Source = "GitHub Actions".
 # Secrets/variabili: Settings → Secrets and variables → Actions (vedi docs/configurazione-supabase.md).
 name: Pubblica
@@ -29,20 +29,21 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Demo alla radice
-      - run: npx tsc --noEmit && npx vite build --mode demo --outDir _site
-      # App con account in /app/ (solo con la configurazione Supabase; la chiave "anon" è pubblica per progettazione)
-      - name: Versione con account
+      - run: npx tsc --noEmit
+      # Con i secret Supabase: l'app con account alla radice e la demo in /demo/.
+      # Senza secret: solo la demo alla radice (la chiave "anon" è pubblica per progettazione).
+      - name: Compila e prepara il sito
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_ASSISTANT_ENABLED: ${{ vars.VITE_ASSISTANT_ENABLED }}
-          VITE_DEMO_URL: ../
         run: |
           if [ -n "$VITE_SUPABASE_URL" ] && [ -n "$VITE_SUPABASE_ANON_KEY" ]; then
-            npx vite build --outDir _site/app
-            echo "Versione con account pubblicata in /app/"
+            VITE_DEMO_URL=./demo/ npx vite build --outDir _site
+            npx vite build --mode demo --outDir _site/demo
+            echo "App con account alla radice, demo in /demo/"
           else
+            npx vite build --mode demo --outDir _site
             echo "::warning::Secrets Supabase non configurati: pubblico solo la demo. Vedi docs/configurazione-supabase.md"
           fi
       - run: touch _site/.nojekyll

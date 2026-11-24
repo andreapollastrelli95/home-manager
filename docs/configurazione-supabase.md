@@ -6,7 +6,7 @@ Come funziona: ogni persona crea il proprio account e ha **una casa privata**. I
 
 | | Demo | App con login |
 |---|---|---|
-| Indirizzo | radice del sito | `/app/` |
+| Indirizzo | `/demo/` | radice del sito (app definitiva) |
 | Dati | fittizi, solo nel browser | veri, online, per ogni account |
 | Sincronizzazione tra dispositivi | no | sì |
 
@@ -28,7 +28,7 @@ Cosa fa lo schema: abilita RLS su tutte le tabelle, toglie ogni permesso a chi n
 
 - **Authentication → Sign In / Providers → Email**: lascia attivo l'accesso con email e password. Imposta la lunghezza minima della password a **8**.
 - **Authentication → URL Configuration**:
-  - *Site URL*: l'indirizzo dell'app con login, es. `https://andreapollastrelli95.github.io/home-manager-demo/app/`
+  - *Site URL*: l'indirizzo dell'app con login, es. `https://andreapollastrelli95.github.io/home-manager-demo/`
   - *Redirect URLs*: aggiungi lo stesso indirizzo (e `http://localhost:5173/` se la provi sul computer).
 - **Email di conferma e recupero password**: con il servizio email predefinito di Supabase l'invio è molto limitato (pochi messaggi all'ora e, nei progetti nuovi, solo verso gli indirizzi dei membri del team). Per far registrare i familiari hai due strade:
   - **Consigliata**: configura un tuo servizio email in **Authentication → Emails → SMTP Settings** (esistono servizi con piano gratuito, per esempio Brevo o Resend). Così funzionano conferma email e «Password dimenticata?».
@@ -58,14 +58,14 @@ npm run dev:demo                   # versione demo
 
 ## 6. Pubblica su GitHub Pages
 
-Il workflow [`.github/workflows/pubblica.yml`](../.github/workflows/pubblica.yml) pubblica la **demo alla radice** e l'**app con login in `/app/`**.
+Il workflow [`.github/workflows/pubblica.yml`](../.github/workflows/pubblica.yml) pubblica l'**app con login alla radice** e la **demo in `/demo/`**.
 
 1. Nel repository GitHub: **Settings → Secrets and variables → Actions → New repository secret**, e crea:
    - `VITE_SUPABASE_URL` = Project URL
    - `VITE_SUPABASE_ANON_KEY` = chiave anon / publishable
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions** (oggi la sorgente è il ramo `gh-pages`: dopo il cambio la pubblicazione passa dal workflow).
 3. Fai il merge del ramo `feature/account-privati` in `main` (o lancia il workflow da **Actions → Pubblica → Run workflow**).
-4. A pubblicazione finita apri `https://<utente>.github.io/<repository>/app/`: deve comparire la schermata di accesso. Se i secret mancano, il workflow pubblica solo la demo e lo segnala con un avviso.
+4. A pubblicazione finita apri `https://<utente>.github.io/<repository>/`: deve comparire la schermata di accesso. Se i secret mancano, il workflow pubblica solo la demo e lo segnala con un avviso.
 
 Il sito è pubblico, ma **i dati no**: senza login il database rifiuta ogni richiesta.
 
