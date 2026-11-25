@@ -4,10 +4,9 @@ import CrudPage, { btn, inputCls } from './CrudPage'
 import { useAccount } from './account'
 import { readLegacyBrowserData } from './data/localBackend'
 import { useData } from './data/store'
-import { normalize, missingRequired, parseBackup, TABLE_LABEL, TABLES, type NewRow, type Row, type TableName } from './data/model'
-import { CATEGORIE_SPESE } from './db'
-import { ASSISTANT_ENABLED, MODE } from './lib/config'
-import { addDaysISO, fmtDate, fmtEuro, relativeDue, todayISO } from './lib/format'
+import { CATEGORIE_SPESE, cleanImport, HOME_TABLES, normalize, parseBackup, TABLE_LABEL, TABLES, type NewRow, type ParsedBackup, type Row, type TableName } from './data/model'
+import { MODE } from './lib/config'
+import { addDaysISO, daysFromToday, fmtDate, fmtEuro, relativeDue, todayISO } from './lib/format'
 
 const Page = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div>
@@ -164,7 +163,7 @@ export function Dashboard() {
   const toPay = unpaid.filter((e) => !e.date || e.date >= t).sort(byDate)
   const upcoming = [...todo, ...docs].filter((e) => e.date >= t && e.date <= limit).sort(byDate)
   const toBuy = rows.shopping.filter((s) => !s.preso).length
-  const empty = TABLES.every((tb) => rows[tb].length === 0)
+  const empty = HOME_TABLES.every((tb) => rows[tb].length === 0)
 
   async function complete(e: Entry) {
     setErr('')
@@ -174,7 +173,7 @@ export function Dashboard() {
   const list = (entries: Entry[], tone: 'red' | 'normal') => (
     <ul className="bg-white rounded-xl shadow divide-y">
       {entries.map((e) => (
-        <li key={e.key} className="p-3 flex items-center gap-2 justify-between">
+        <li key={e.key} className={`p-3 flex items-center gap-2 justify-between ${tone === 'red' ? 'border-l-4 border-red-500' : e.date && daysFromToday(e.date) <= 7 ? 'border-l-4 border-amber-400' : ''}`}>
           <div className="min-w-0">
             <div className="font-medium break-words">{e.label}</div>
             <div className="text-sm text-slate-500">
@@ -236,7 +235,7 @@ export function Altro() {
   const links: [string, string, string, string][] = [
     ['/inventario', '📦', 'Inventario', 'Cosa c’è in casa e dove'],
     ['/documenti', '📄', 'Documenti', 'Contratti, garanzie, polizze'],
-    ['/assistente', '✨', 'Assistente', 'Domande sui tuoi dati'],
+    ['/assistente?area=home', '✨', 'Assistente', 'Domande sui tuoi dati'],
     ['/casa', '🏠', 'La mia casa', MODE === 'cloud' ? 'Nome della casa e account' : 'Nome della casa'],
     ['/backup', '💾', 'Backup e importazione', 'Salva o ripristina i dati'],
   ]
@@ -313,7 +312,7 @@ export function Casa() {
 
 /* ---------- Backup e importazione ---------- */
 
-interface Preview { source: string; rows: Record<TableName, NewRow[]>; total: number; skipped: number }
+type Preview = ParsedBackup & { source: string }
 
 function download(name: string, payload: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' }))
@@ -323,22 +322,23 @@ function download(name: string, payload: unknown) {
 }
 
 export function Backup() {
-  const { rows, homeName, addMany } = useData()
+  const { rows, homeName, addMany, carReady } = useData()
   const [preview, setPreview] = useState<Preview | null>(null)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
 
   function exportAll() {
     const data: Record<string, NewRow[]> = {}
-    for (const t of TABLES) data[t] = rows[t].map((r) => normalize(t, r))
-    download(`home-manager-backup-${todayISO()}.json`, { app: 'home-manager', version: 2, exportedAt: new Date().toISOString(), homeName, data })
-    setMsg({ ok: true, text: 'Backup scaricato. Conservalo in un posto sicuro: contiene i dati della tua casa.' })
+    // delle auto si salva anche l'id, per ricollegare le registrazioni quando si importa
+    for (const t of TABLES) data[t] = rows[t].map((r) => (t === 'vehicles' ? { id: r.id, ...normalize(t, r) } : normalize(t, r)))
+    download(`home-car-manager-backup-${todayISO()}.json`, { app: 'home-manager', version: 3, exportedAt: new Date().toISOString(), homeName, data })
+    setMsg({ ok: true, text: 'Backup scaricato. Conservalo in un posto sicuro: contiene i dati della tua casa e delle tue auto.' })
   }
 
   async function onFile(file?: File) {
     setMsg(null); setPreview(null)
     if (!file) return
-    if (file.size > 10e6) return setMsg({ ok: false, text: 'Il file è troppo grande per essere un backup di Home Manager.' })
+    if (file.size > 10e6) return setMsg({ ok: false, text: 'Il file è troppo grande per essere un backup di Home e Car Manager.' })
     try {
       const p = parseBackup(await file.text())
       if (p.total === 0) return setMsg({ ok: false, text: 'Il file è valido ma non contiene elementi da importare.' })
@@ -350,17 +350,13 @@ export function Backup() {
     setMsg(null); setPreview(null)
     const legacy = await readLegacyBrowserData()
     if (!legacy) return setMsg({ ok: false, text: 'In questo browser non ci sono dati salvati dalle versioni precedenti.' })
-    const out = {} as Record<TableName, NewRow[]>
-    let total = 0, skipped = 0
-    for (const t of TABLES) {
-      out[t] = []
-      for (const r of legacy[t]) { const n = normalize(t, r); if (missingRequired(t, n).length) skipped++; else { out[t].push(n); total++ } }
-    }
-    setPreview({ source: 'i dati salvati in questo browser', rows: out, total, skipped })
+    setPreview({ source: 'i dati salvati in questo browser', ...cleanImport(legacy as Record<TableName, Row[]>) })
   }
 
   async function confirmImport() {
     if (!preview) return
+    if (!carReady && TABLES.some((t) => !(HOME_TABLES as TableName[]).includes(t) && preview.rows[t].length))
+      return setMsg({ ok: false, text: 'Questo file contiene dati delle auto, ma il database online non è ancora pronto per l’area Car. Non ho importato nulla.' })
     setBusy(true)
     try {
       await addMany(preview.rows)
@@ -374,7 +370,7 @@ export function Backup() {
     <Page title="Backup e importazione">
       <Card>
         <h2 className="font-semibold mb-1">Salva una copia</h2>
-        <p className="text-sm text-slate-500 mb-3">Scarica tutti i dati della tua casa in un file JSON.</p>
+        <p className="text-sm text-slate-500 mb-3">Scarica tutti i dati di casa e auto in un file JSON.</p>
         <button className={`${btn} bg-blue-600 text-white`} onClick={exportAll}>Scarica il backup</button>
       </Card>
       <Card>
@@ -399,100 +395,18 @@ export function Backup() {
           <ul className="text-sm mb-2 space-y-0.5">
             {TABLES.filter((t) => preview.rows[t].length).map((t) => (
               <li key={t}><b>{preview.rows[t].length}</b> · {TABLE_LABEL[t]}
-                <span className="text-amber-800/80"> — es. {preview.rows[t].slice(0, 3).map((r) => String(r.descrizione ?? r.titolo ?? r.nome)).join(', ')}</span>
+                <span className="text-amber-800/80"> — es. {preview.rows[t].slice(0, 3).map((r) => String(r.descrizione ?? r.titolo ?? r.nome ?? fmtDate(r.data))).join(', ')}</span>
               </li>
             ))}
           </ul>
-          {preview.skipped > 0 && <p className="text-sm mb-2">{preview.skipped} elementi incompleti verranno ignorati.</p>}
+          {preview.skipped > 0 && <p className="text-sm mb-2">{preview.skipped} elementi incompleti o senza la loro auto verranno ignorati.</p>}
           <div className="flex flex-wrap gap-2">
-            <button className={`${btn} bg-blue-600 text-white disabled:opacity-60`} disabled={busy} onClick={() => void confirmImport()}>{busy ? 'Importazione…' : `Importa ${preview.total} elementi nella mia casa`}</button>
+            <button className={`${btn} bg-blue-600 text-white disabled:opacity-60`} disabled={busy} onClick={() => void confirmImport()}>{busy ? 'Importazione…' : `Importa ${preview.total} elementi nel mio account`}</button>
             <button className={`${btn} bg-white text-slate-700`} onClick={() => setPreview(null)}>Annulla</button>
           </div>
         </Card>
       )}
       {msg && <Card tone={msg.ok ? 'green' : 'red'}><span role="status">{msg.text}</span></Card>}
-    </Page>
-  )
-}
-
-/* ---------- Assistente ---------- */
-
-async function askAssistant(question: string, context: unknown): Promise<{ ok: boolean; text?: string; error?: string }> {
-  if (MODE === 'local') {
-    const res = await fetch('/api/gemini', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question, context }) })
-    return res.json()
-  }
-  const { getClient } = await import('./lib/supabase')
-  const { data, error } = await getClient().functions.invoke('assistente', { body: { question, context } })
-  if (error) return { ok: false, error: 'Il servizio dell’assistente non risponde. Riprova più tardi.' }
-  return data
-}
-
-const SUGGESTIONS = ['Cosa scade nei prossimi 30 giorni?', 'Quali bollette devo ancora pagare?', 'Quanto ho speso per ogni categoria?', 'Cosa devo comprare?']
-
-export function Assistente() {
-  const { rows } = useData()
-  const [q, setQ] = useState('')
-  const [answer, setAnswer] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  if (MODE === 'demo')
-    return (
-      <Page title="Assistente">
-        <Card tone="amber">
-          <p className="font-medium mb-1">Assistente disattivato nella demo</p>
-          <p className="text-sm">Nella versione con account, l’assistente risponde alle domande sui dati della tua casa. Qui non è attivo e nessun dato viene inviato.</p>
-        </Card>
-      </Page>
-    )
-  if (MODE === 'cloud' && !ASSISTANT_ENABLED)
-    return (
-      <Page title="Assistente">
-        <Card tone="amber">
-          <p className="font-medium mb-1">Assistente non ancora attivo</p>
-          <p className="text-sm">Per attivarlo serve un passaggio di configurazione sul servizio online (vedi <code>docs/configurazione-supabase.md</code>, sezione «Assistente»). Finché non è attivo non viene inviato nessun dato.</p>
-        </Card>
-      </Page>
-    )
-
-  const context = {
-    oggi: todayISO(),
-    spese: rows.expenses.map((r) => normalize('expenses', r)),
-    scadenze: rows.deadlines.map((r) => normalize('deadlines', r)),
-    inventario: rows.items.map((r) => normalize('items', r)),
-    listaSpesa: rows.shopping.map((r) => normalize('shopping', r)),
-    documenti: rows.docs.map(({ link: _link, ...r }) => normalize('docs', r)),
-  }
-
-  async function ask() {
-    if (!q.trim() || loading) return
-    setLoading(true); setError(''); setAnswer('')
-    try {
-      const r = await askAssistant(q.trim(), context)
-      if (r.ok) setAnswer(r.text ?? ''); else setError(r.error ?? 'Non sono riuscito a ottenere una risposta.')
-    } catch {
-      setError(navigator.onLine ? 'Non sono riuscito a contattare l’assistente. Riprova più tardi.' : 'Senza connessione: controlla internet e riprova.')
-    } finally { setLoading(false) }
-  }
-
-  return (
-    <Page title="Assistente">
-      <Card>
-        <p className="text-sm font-medium mb-1">Quali dati vengono inviati</p>
-        <p className="text-sm text-slate-600">
-          Solo quando premi «Chiedi», la tua domanda e questi dati della casa vengono inviati al servizio Google Gemini per preparare la risposta:{' '}
-          {rows.expenses.length} spese, {rows.deadlines.length} scadenze, {rows.items.length} oggetti, {rows.shopping.length} articoli della spesa e {rows.docs.length} documenti
-          (titolo, tipo, scadenza e note; i link ai documenti non vengono inviati). Se non vuoi inviarli, non usare questa funzione.
-        </p>
-      </Card>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {SUGGESTIONS.map((s) => <button key={s} className="rounded-full bg-white shadow px-3 py-2 text-sm" onClick={() => setQ(s)}>{s}</button>)}
-      </div>
-      <textarea className={inputCls} rows={3} value={q} maxLength={500} onChange={(e) => setQ(e.target.value)} placeholder="Scrivi la tua domanda…" aria-label="Domanda" />
-      <button className={`${btn} bg-blue-600 text-white mt-2 disabled:opacity-60`} disabled={loading || !q.trim()} onClick={() => void ask()}>{loading ? 'Attendi…' : 'Chiedi (invia i dati a Gemini)'}</button>
-      {error && <div role="alert" className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">{error}</div>}
-      {answer && <div className="mt-4 bg-white shadow rounded-xl p-4 text-sm whitespace-pre-wrap">{answer}</div>}
     </Page>
   )
 }

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Backend } from './store'
-import { COLUMNS, emptyRows, normalize, TABLES, type NewRow, type Row, type TableName } from './model'
+import { CAR_TABLES, COLUMNS, emptyRows, normalize, TABLES, type NewRow, type Row, type TableName } from './model'
 
 // Dal database all'interfaccia: le date nulle diventano stringa vuota, si scartano i campi tecnici
 function fromDb(t: TableName, r: Record<string, unknown>): Row {
@@ -9,23 +9,46 @@ function fromDb(t: TableName, r: Record<string, unknown>): Row {
   return { ...normalize(t, clean), id: String(r.id) } as Row
 }
 
-// Dall'interfaccia al database: date vuote -> null. user_id lo imposta il database (auth.uid()).
+// Dall'interfaccia al database: date vuote e numeri non indicati -> null. user_id lo imposta il database (auth.uid()).
 function toDb(t: TableName, row: NewRow): NewRow {
   const data = normalize(t, row)
-  for (const [k, c] of Object.entries(COLUMNS[t])) if (c.kind === 'date' && data[k] === '') data[k] = null
+  for (const [k, c] of Object.entries(COLUMNS[t])) {
+    if ((c.kind === 'date' && data[k] === '') || (c.nullable && !data[k])) data[k] = null
+  }
   return data
 }
 
 const fail = (error: unknown): never => { throw error }
 
+// Tabella assente: il database non è ancora stato aggiornato con la parte Car
+const isMissingTable = (e: { code?: string }) => e.code === '42P01' || e.code === 'PGRST205'
+
+// Il servizio restituisce al massimo 1000 righe per richiesta: si legge a blocchi
+async function readAll(sb: SupabaseClient, t: TableName) {
+  const out: Record<string, unknown>[] = []
+  for (let from = 0; from < 10000; from += 1000) {
+    const { data, error } = await sb.from(t).select('*').order('created_at', { ascending: true }).range(from, from + 999)
+    if (error) return { data: out, error }
+    out.push(...(data ?? []))
+    if ((data?.length ?? 0) < 1000) break
+  }
+  return { data: out, error: null }
+}
+
 export function cloudBackend(sb: SupabaseClient): Backend {
   return {
     async load() {
       const rows = emptyRows()
-      const results = await Promise.all(TABLES.map((t) => sb.from(t).select('*').order('created_at', { ascending: true }).range(0, 4999)))
+      let carReady = true
+      const results = await Promise.all(TABLES.map((t) => readAll(sb, t)))
       TABLES.forEach((t, i) => {
-        if (results[i].error) fail(results[i].error)
-        rows[t] = (results[i].data ?? []).map((r) => fromDb(t, r))
+        const { data, error } = results[i]
+        if (error) {
+          // senza le tabelle auto la parte Home continua a funzionare
+          if ((CAR_TABLES as TableName[]).includes(t) && isMissingTable(error)) { carReady = false; return }
+          fail(error)
+        }
+        rows[t] = data.map((r) => fromDb(t, r))
       })
       const home = await sb.from('homes').select('name').maybeSingle()
       if (home.error) fail(home.error)
@@ -36,7 +59,7 @@ export function cloudBackend(sb: SupabaseClient): Backend {
         if (created.error) fail(created.error)
         homeName = created.data?.name as string
       }
-      return { rows, homeName: homeName ?? 'La mia casa' }
+      return { rows, homeName: homeName ?? 'La mia casa', carReady }
     },
     async add(t, row) {
       const { data, error } = await sb.from(t).insert(toDb(t, row)).select('*').single()

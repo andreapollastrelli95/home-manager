@@ -1,5 +1,7 @@
--- Home Manager: schema Supabase con Row Level Security.
--- Esegui questo file UNA volta in Supabase > SQL Editor > New query > Run.
+-- Home e Car Manager: schema Supabase con Row Level Security.
+-- Esegui questo file in Supabase > SQL Editor > New query > Run.
+-- Si può rieseguire: crea solo ciò che manca e non cancella dati.
+-- Chi usava già Home Manager lo riesegue per aggiungere le tabelle dell'area Car.
 -- Ogni persona vede e modifica solo i propri record (user_id = auth.uid()).
 -- Il ruolo "anon" (chi non ha fatto il login) non ha alcun permesso sulle tabelle.
 
@@ -65,11 +67,105 @@ create table if not exists public.docs (
   created_at timestamptz not null default now()
 );
 
+-- ---------- Area Car ----------
+create table if not exists public.vehicles (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  nome          text not null check (char_length(nome) between 1 and 80),
+  marca         text not null default '' check (char_length(marca) <= 60),
+  modello       text not null default '' check (char_length(modello) <= 60),
+  targa         text not null default '' check (char_length(targa) <= 20),
+  anno          integer check (anno between 1 and 9999),
+  alimentazione text not null default 'Benzina' check (char_length(alimentazione) <= 40),
+  km            integer check (km >= 0),
+  km_data       date,
+  note          text not null default '' check (char_length(note) <= 1000),
+  created_at    timestamptz not null default now(),
+  unique (id, user_id)
+);
+
+-- Il riferimento (vehicle_id, user_id) impedisce di collegare una riga all'auto di un'altra persona.
+create table if not exists public.car_deadlines (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vehicle_id uuid not null,
+  titolo     text not null check (char_length(titolo) between 1 and 200),
+  tipo       text not null default 'Altro' check (char_length(tipo) <= 60),
+  data       date,
+  km         integer check (km >= 0),
+  fatto      boolean not null default false,
+  note       text not null default '' check (char_length(note) <= 1000),
+  created_at timestamptz not null default now(),
+  check (data is not null or km is not null),
+  foreign key (vehicle_id, user_id) references public.vehicles (id, user_id) on delete cascade
+);
+
+create table if not exists public.car_services (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vehicle_id uuid not null,
+  descrizione text not null check (char_length(descrizione) between 1 and 200),
+  data        date not null,
+  km          integer check (km >= 0),
+  officina    text not null default '' check (char_length(officina) <= 120),
+  costo       numeric(12, 2) not null default 0,
+  note       text not null default '' check (char_length(note) <= 1000),
+  created_at timestamptz not null default now(),
+  foreign key (vehicle_id, user_id) references public.vehicles (id, user_id) on delete cascade
+);
+
+create table if not exists public.car_expenses (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vehicle_id uuid not null,
+  descrizione text not null check (char_length(descrizione) between 1 and 200),
+  categoria   text not null default 'Altro' check (char_length(categoria) <= 60),
+  importo     numeric(12, 2) not null default 0,
+  data        date not null,
+  note       text not null default '' check (char_length(note) <= 1000),
+  created_at timestamptz not null default now(),
+  foreign key (vehicle_id, user_id) references public.vehicles (id, user_id) on delete cascade
+);
+
+create table if not exists public.car_fuel (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vehicle_id uuid not null,
+  data       date not null,
+  litri      numeric(10, 2) not null default 0,
+  prezzo     numeric(10, 3) not null default 0,
+  importo    numeric(12, 2) not null default 0,
+  km         integer check (km >= 0),
+  note       text not null default '' check (char_length(note) <= 1000),
+  created_at timestamptz not null default now(),
+  foreign key (vehicle_id, user_id) references public.vehicles (id, user_id) on delete cascade
+);
+
+create table if not exists public.car_docs (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vehicle_id uuid not null,
+  titolo     text not null check (char_length(titolo) between 1 and 200),
+  tipo       text not null default 'Altro' check (char_length(tipo) <= 60),
+  scadenza   date,
+  telefono   text not null default '' check (char_length(telefono) <= 40),
+  link       text not null default '' check (char_length(link) <= 2000),
+  note       text not null default '' check (char_length(note) <= 1000),
+  created_at timestamptz not null default now(),
+  foreign key (vehicle_id, user_id) references public.vehicles (id, user_id) on delete cascade
+);
+
 create index if not exists expenses_user_idx  on public.expenses  (user_id);
 create index if not exists deadlines_user_idx on public.deadlines (user_id);
 create index if not exists items_user_idx     on public.items     (user_id);
 create index if not exists shopping_user_idx  on public.shopping  (user_id);
 create index if not exists docs_user_idx      on public.docs      (user_id);
+create index if not exists vehicles_user_idx on public.vehicles (user_id);
+create index if not exists car_deadlines_user_idx on public.car_deadlines (user_id, vehicle_id);
+create index if not exists car_services_user_idx on public.car_services (user_id, vehicle_id);
+create index if not exists car_expenses_user_idx on public.car_expenses (user_id, vehicle_id);
+create index if not exists car_fuel_user_idx on public.car_fuel (user_id, vehicle_id);
+create index if not exists car_docs_user_idx on public.car_docs (user_id, vehicle_id);
 
 -- Row Level Security su TUTTE le tabelle esposte al client
 alter table public.homes     enable row level security;
@@ -78,15 +174,21 @@ alter table public.deadlines enable row level security;
 alter table public.items     enable row level security;
 alter table public.shopping  enable row level security;
 alter table public.docs      enable row level security;
+alter table public.vehicles enable row level security;
+alter table public.car_deadlines enable row level security;
+alter table public.car_services enable row level security;
+alter table public.car_expenses enable row level security;
+alter table public.car_fuel enable row level security;
+alter table public.car_docs enable row level security;
 
 -- Nessun permesso a chi non ha fatto il login; CRUD solo agli utenti autenticati (e comunque filtrato dalla RLS)
-revoke all on public.homes, public.expenses, public.deadlines, public.items, public.shopping, public.docs from anon;
-grant select, insert, update, delete on public.homes, public.expenses, public.deadlines, public.items, public.shopping, public.docs to authenticated;
+revoke all on public.homes, public.expenses, public.deadlines, public.items, public.shopping, public.docs, public.vehicles, public.car_deadlines, public.car_services, public.car_expenses, public.car_fuel, public.car_docs from anon;
+grant select, insert, update, delete on public.homes, public.expenses, public.deadlines, public.items, public.shopping, public.docs, public.vehicles, public.car_deadlines, public.car_services, public.car_expenses, public.car_fuel, public.car_docs to authenticated;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['homes', 'expenses', 'deadlines', 'items', 'shopping', 'docs'] loop
+  foreach t in array array['homes', 'expenses', 'deadlines', 'items', 'shopping', 'docs', 'vehicles', 'car_deadlines', 'car_services', 'car_expenses', 'car_fuel', 'car_docs'] loop
     execute format('drop policy if exists "own_select" on public.%I', t);
     execute format('drop policy if exists "own_insert" on public.%I', t);
     execute format('drop policy if exists "own_update" on public.%I', t);

@@ -1,6 +1,6 @@
 {
-  "name": "Home Manager",
-  "short_name": "Home",
+  "name": "Home e Car Manager",
+  "short_name": "Home e Car",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#1e293b",

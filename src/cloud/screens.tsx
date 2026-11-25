@@ -10,9 +10,9 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-slate-100 text-slate-800 flex items-start sm:items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow p-6">
         <div className="text-center mb-5">
-          <div className="text-4xl" aria-hidden>🏠</div>
-          <h1 className="text-2xl font-semibold mt-1">Home Manager</h1>
-          <p className="text-sm text-slate-500">La tua casa, in ordine e sempre con te.</p>
+          <div className="text-4xl" aria-hidden>🏠🚗</div>
+          <h1 className="text-2xl font-semibold mt-1">Home e Car Manager</h1>
+          <p className="text-sm text-slate-500">Casa e auto in ordine, sempre con te.</p>
         </div>
         {children}
       </div>
@@ -32,7 +32,7 @@ export function ConfigMissing({ problem }: { problem: Exclude<ConfigProblem, nul
           ? 'Nella configurazione c’è una chiave segreta (service_role / secret). Non va mai usata nell’app: usa la chiave pubblica “anon” o “publishable”.'
           : problem === 'bad-url'
             ? 'L’indirizzo del progetto Supabase non è valido: deve iniziare con https://.'
-            : 'Questa versione di Home Manager non è ancora collegata a un archivio online, quindi non è possibile accedere né salvare dati.'}
+            : 'Questa versione di Home e Car Manager non è ancora collegata a un archivio online, quindi non è possibile accedere né salvare dati.'}
       </div>
       <h2 className="font-semibold mb-2">Come si configura</h2>
       <ol className="list-decimal pl-5 text-sm space-y-1.5 text-slate-700">
@@ -139,7 +139,7 @@ export function AuthScreen({ sb }: { sb: SupabaseClient }) {
         {view === 'forgot' && <button className="text-blue-600 py-2" onClick={() => go('login')}>← Torna all’accesso</button>}
       </div>
       <p className="text-xs text-slate-500 text-center mt-3">
-        Ogni persona ha il proprio account e la propria casa privata: nessuno può vedere i tuoi dati e tu non vedi quelli degli altri.
+        Ogni persona ha il proprio account: i dati di casa e auto sono privati, nessuno può vedere i tuoi e tu non vedi quelli degli altri.
       </p>
       {DEMO_URL && <a className="block text-center text-sm text-blue-600 mt-3 py-2" href={DEMO_URL}>Prova prima la demo (dati fittizi)</a>}
     </Shell>

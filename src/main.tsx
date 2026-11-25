@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { localBackend } from './data/localBackend'
 import { DataProvider } from './data/store'
-import { seedDemo } from './db'
+import { seedDemo, seedDemoCar } from './db'
 import { MODE } from './lib/config'
 import { initSync } from './sync'
 import './index.css'
@@ -25,7 +25,7 @@ async function boot() {
   }
   // demo: dati fittizi solo nel browser, nessun server. local: sincronizzazione con il server Node locale.
   if (MODE === 'local') await initSync()
-  else await seedDemo()
+  else { await seedDemo(); await seedDemoCar() }
   root.render(
     <StrictMode>
       <DataProvider backend={localBackend}>

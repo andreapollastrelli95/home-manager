@@ -34,7 +34,31 @@ r = await as('authenticated', B, `update expenses set user_id = '${A}' where des
 r = await as('authenticated', A, 'select name from homes'); check('A vede solo la propria casa', r.rows?.length === 1)
 r = await as('authenticated', A, `update homes set name = 'Casa di A' returning name`); check('A rinomina la propria casa', r.rows?.[0]?.name === 'Casa di A')
 r = await as('authenticated', B, 'select name from homes'); check('B non vede il nome della casa di A', r.rows?.length === 1 && r.rows[0].name === 'La mia casa')
-for (const t of ['homes', 'expenses', 'deadlines', 'items', 'shopping', 'docs']) {
+// ---------- Area Car ----------
+r = await as('authenticated', A, `insert into vehicles (nome, km) values ('Auto di A', 1000) returning id`); const vA = r.rows?.[0]?.id; check('A inserisce un auto', !!vA, r.error ?? '')
+r = await as('authenticated', B, `insert into vehicles (nome) values ('Auto di B') returning id`); check('B inserisce un auto', !!r.rows?.[0]?.id)
+const carInserts = {
+  car_deadlines: (v) => `insert into car_deadlines (vehicle_id, titolo, km) values ('${v}', 'Tagliando', 2000)`,
+  car_services: (v) => `insert into car_services (vehicle_id, descrizione, data) values ('${v}', 'Olio', '2026-01-10')`,
+  car_expenses: (v) => `insert into car_expenses (vehicle_id, descrizione, data, importo) values ('${v}', 'Bollo', '2026-01-10', 100)`,
+  car_fuel: (v) => `insert into car_fuel (vehicle_id, data, litri, prezzo) values ('${v}', '2026-01-10', 30, 1.789)`,
+  car_docs: (v) => `insert into car_docs (vehicle_id, titolo) values ('${v}', 'Polizza')`,
+}
+for (const [t, sql] of Object.entries(carInserts)) {
+  r = await as('authenticated', A, sql(vA) + ' returning id'); const id = r.rows?.[0]?.id; check(`A inserisce in ${t}`, !!id, r.error ?? '')
+  r = await as('authenticated', B, `select * from ${t}`); check(`B non vede ${t} di A`, r.rows?.length === 0)
+  r = await as('authenticated', B, `update ${t} set note = 'x' where id = '${id}' returning id`); check(`B non modifica ${t} di A`, r.rows?.length === 0)
+  r = await as('authenticated', B, `delete from ${t} where id = '${id}' returning id`); check(`B non elimina ${t} di A`, r.rows?.length === 0)
+  r = await as('authenticated', B, sql(vA)); check(`B non collega ${t} all'auto di A`, !!r.error)
+}
+r = await as('authenticated', B, 'select nome from vehicles'); check('B vede solo la propria auto', r.rows?.length === 1 && r.rows[0].nome === 'Auto di B')
+r = await as('authenticated', B, `delete from vehicles where id = '${vA}' returning id`); check('B non elimina l auto di A', r.rows?.length === 0)
+r = await as('authenticated', A, `insert into car_deadlines (vehicle_id, titolo) values ('${vA}', 'x')`); check('scadenza auto senza data e km rifiutata', !!r.error)
+await db.exec(fs.readFileSync(new URL('./schema.sql', import.meta.url), 'utf8'))
+r = (await db.query('select count(*)::int c from expenses')).rows[0].c; check('rieseguire lo schema non cancella dati', r === 2)
+await as('authenticated', A, `delete from vehicles where id = '${vA}'`)
+r = (await db.query(`select ((select count(*) from car_services) + (select count(*) from car_fuel) + (select count(*) from car_docs) + (select count(*) from car_expenses) + (select count(*) from car_deadlines))::int as c`)).rows[0].c; check('eliminando l auto spariscono le sue registrazioni', r === 0)
+for (const t of ['homes', 'expenses', 'deadlines', 'items', 'shopping', 'docs', 'vehicles', 'car_deadlines', 'car_services', 'car_expenses', 'car_fuel', 'car_docs']) {
   r = await as('anon', null, `select * from ${t}`); check(`anon non legge ${t}`, !!r.error, r.error ?? '')
   r = await as('anon', null, `delete from ${t}`); check(`anon non elimina da ${t}`, !!r.error)
   r = await as('authenticated', null, `select * from ${t}`); check(`login senza utente non legge ${t}`, !r.error && r.rows.length === 0)

@@ -1,12 +1,9 @@
-import type { Table } from 'dexie'
-import { db, seedDemo } from './db'
+import { db, dexieTables as tables, seedDemo } from './db'
 
 let version = 0
 let suspended = true
 let timer: number | undefined
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const tables = () => [db.expenses, db.deadlines, db.items, db.shopping, db.docs] as Table<any, number>[]
 
 async function dump() {
   const out: Record<string, unknown[]> = {}

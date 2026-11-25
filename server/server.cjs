@@ -29,7 +29,7 @@ async function askGemini(question, context) {
     const { GEMINI_API_KEY, GEMINI_MODEL } = readGeminiEnv()
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`
     const prompt =
-      "Sei l'assistente di Home Manager, un gestionale domestico. Rispondi in italiano, in modo breve e pratico, usando solo i dati dell'app qui sotto.\n\nDATI (JSON):\n" +
+      "Sei l'assistente di Home e Car Manager, un gestionale di casa e auto. Rispondi in italiano, in modo breve e pratico, usando solo i dati dell'app qui sotto.\n\nDATI (JSON):\n" +
       JSON.stringify(context) + '\n\nDOMANDA: ' + question
     const res = await fetch(url, {
       method: 'POST',

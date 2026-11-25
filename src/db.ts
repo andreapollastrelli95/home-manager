@@ -1,19 +1,20 @@
 import Dexie, { type Table } from 'dexie'
-
-export interface Expense { id?: number; descrizione: string; categoria: string; importo: number; data: string; scadenza?: string; pagata: boolean }
-export interface Deadline { id?: number; titolo: string; tipo: string; data: string; note: string; fatto: boolean }
-export interface Item { id?: number; nome: string; stanza: string; quantita: number; valore: number; note: string }
-export interface Shopping { id?: number; nome: string; quantita: string; preso: boolean }
-export interface Doc { id?: number; titolo: string; tipo: string; link: string; scadenza?: string; note: string }
+import { TABLES, type Row } from './data/model'
 
 class HomeDB extends Dexie {
-  expenses!: Table<Expense, number>
-  deadlines!: Table<Deadline, number>
-  items!: Table<Item, number>
-  shopping!: Table<Shopping, number>
-  docs!: Table<Doc, number>
+  expenses!: Table<any, number>
+  deadlines!: Table<any, number>
+  items!: Table<any, number>
+  shopping!: Table<any, number>
+  docs!: Table<any, number>
+  vehicles!: Table<any, number>
+  car_deadlines!: Table<any, number>
+  car_services!: Table<any, number>
+  car_expenses!: Table<any, number>
+  car_fuel!: Table<any, number>
+  car_docs!: Table<any, number>
   constructor() {
-    super('home-manager')
+    super('home-manager') // il nome non cambia: i dati già salvati restano dove sono
     this.version(1).stores({
       expenses: '++id, categoria, data, scadenza',
       deadlines: '++id, data, tipo',
@@ -21,12 +22,20 @@ class HomeDB extends Dexie {
       shopping: '++id, preso',
       docs: '++id, tipo',
     })
+    // versione 2: solo tabelle nuove per l'area Car, quelle di casa restano invariate
+    this.version(2).stores({
+      vehicles: '++id',
+      car_deadlines: '++id, vehicle_id',
+      car_services: '++id, vehicle_id',
+      car_expenses: '++id, vehicle_id',
+      car_fuel: '++id, vehicle_id',
+      car_docs: '++id, vehicle_id',
+    })
   }
 }
 
 export const db = new HomeDB()
-
-export const CATEGORIE_SPESE = ['Luce', 'Gas', 'Acqua', 'Internet', 'Condominio', 'Tasse', 'Manutenzione', 'Altro']
+export const dexieTables = () => TABLES.map((t) => db[t] as Table<Row, number>)
 
 const day = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10)
 
@@ -52,4 +61,20 @@ export async function seedDemo() {
   await db.docs.bulkAdd([
     { titolo: 'Contratto di affitto', tipo: 'Contratto', link: 'C:\\Documenti\\affitto.pdf', scadenza: day(200), note: '' },
   ])
+}
+
+/** Auto di esempio, solo per la demo e una volta sola (chi la cancella non la vede ricomparire). */
+export async function seedDemoCar() {
+  const FLAG = 'home-manager-demo-auto'
+  try { if (localStorage.getItem(FLAG)) return; localStorage.setItem(FLAG, '1') } catch { /* ignora */ }
+  if ((await db.vehicles.count()) > 0) return
+  const vehicle_id = await db.vehicles.add({ nome: 'Utilitaria di esempio', marca: 'Marca', modello: 'Modello', targa: 'AB123CD', anno: 2019, alimentazione: 'Benzina', km: 48500, km_data: day(-6), note: '' })
+  await db.car_deadlines.bulkAdd([
+    { vehicle_id, titolo: 'Rinnovo assicurazione', tipo: 'Assicurazione', data: day(18), km: 0, note: '', fatto: false },
+    { vehicle_id, titolo: 'Tagliando', tipo: 'Tagliando', data: '', km: 49000, note: '', fatto: false },
+  ])
+  await db.car_services.add({ vehicle_id, descrizione: 'Cambio olio e filtri', data: day(-90), km: 45200, officina: 'Officina di esempio', costo: 140, note: '' })
+  await db.car_expenses.add({ vehicle_id, descrizione: 'Pedaggi', categoria: 'Pedaggi', importo: 18.4, data: day(-12), note: '' })
+  await db.car_fuel.add({ vehicle_id, data: day(-6), litri: 35, prezzo: 1.789, importo: 62.62, km: 48500, note: '' })
+  await db.car_docs.add({ vehicle_id, titolo: 'Soccorso stradale', tipo: 'Soccorso stradale', scadenza: '', telefono: '800 000000', link: '', note: 'Numero inventato' })
 }

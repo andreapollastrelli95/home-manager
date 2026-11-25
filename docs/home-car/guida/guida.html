@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home e Car Manager – Guida</title>
+<!-- SORGENTE MODIFICABILE della guida. Per rifare il PDF:  npm run guida -->
+<style>
+  @page { size: A4; margin: 15mm 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1e293b; font-size: 11.5pt; line-height: 1.45; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1 { font-size: 24pt; margin: 0; color: #1e3a8a; }
+  .sub { color: #475569; font-size: 12.5pt; margin: 1mm 0 4mm; }
+  h2 { font-size: 14pt; color: #1e3a8a; margin: 5mm 0 2mm; border-bottom: .6mm solid #bfdbfe; padding-bottom: 1mm; break-after: avoid; }
+  ol, ul { margin: 1mm 0 0; padding-left: 7mm; }
+  li { margin: 1mm 0; }
+  b { color: #0f172a; }
+  .box { border-radius: 3mm; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+  .privacy { background: #dcfce7; border: .4mm solid #16a34a; color: #14532d; }
+  .tip { background: #fef3c7; border: .4mm solid #d97706; color: #78350f; }
+  .ai { background: #ede9fe; border: .4mm solid #7c3aed; color: #4c1d95; }
+  table { border-collapse: collapse; width: 100%; margin-top: 2mm; }
+  tr { break-inside: avoid; }
+  td, th { border: .3mm solid #cbd5e1; padding: 1.8mm 3mm; text-align: left; vertical-align: top; font-size: 10.5pt; }
+  th { background: #eff6ff; }
+  .k { background: #e2e8f0; border-radius: 1.5mm; padding: 0 1.5mm; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>🏠🚗 Home e Car Manager</h1>
+<p class="sub">Come funziona: casa e auto in ordine, dal telefono e dal computer.</p>
+
+<div class="box privacy"><b>🔒 Ognuno ha i propri dati.</b> Ogni persona ha il proprio account: i dati di casa e auto sono privati e <b>non vengono condivisi</b> con i familiari. Con lo stesso account li ritrovi su tutti i tuoi dispositivi.</div>
+
+<h2>1. Creare l’account e accedere</h2>
+<ol>
+  <li>Apri l’indirizzo dell’app (QR code del volantino, oppure scrivilo nel browser).</li>
+  <li>La prima volta tocca <span class="k">Crea account</span>, scrivi email e password di almeno 8 caratteri. <b>Annota la password</b> in un posto sicuro.</li>
+  <li>Le volte dopo usa <span class="k">Accedi</span>. L’app ricorda l’accesso finché non tocchi <span class="k">Esci</span>.</li>
+  <li>Se avevi già un account Home Manager, usa gli stessi dati: ritrovi la tua casa.</li>
+</ol>
+
+<h2>2. Scegliere tra Home e Car</h2>
+<p>Dopo l’accesso scegli <span class="k">Home</span> (casa) o <span class="k">Car</span> (auto). In alto trovi sempre <span class="k">Inizio</span>, <span class="k">Home</span> e <span class="k">Car</span> per spostarti; i dati restano dove sono. In basso (su telefono) o a sinistra (su computer) c’è il menu dell’area.</p>
+
+<h2>3. Area Home</h2>
+<table>
+  <tr><th>Sezione</th><th>A cosa serve</th></tr>
+  <tr><td><b>Riepilogo</b></td><td>Arretrati in rosso, pagamenti da fare, scadenze dei prossimi 30 giorni (in giallo quelle entro 7 giorni) e azioni rapide.</td></tr>
+  <tr><td><b>Spese e bollette</b></td><td>Importo, categoria, scadenza di pagamento; <span class="k">Segna come pagata</span>.</td></tr>
+  <tr><td><b>Scadenze</b></td><td>Tasse, controlli e lavori di casa.</td></tr>
+  <tr><td><b>Lista della spesa</b></td><td>Cosa comprare; <span class="k">Preso</span> quando è nel carrello.</td></tr>
+  <tr><td><b>Inventario e Documenti</b></td><td>Oggetti per stanza; contratti e garanzie (titolo, scadenza e link, non i file). Si trovano in <span class="k">Altro</span>.</td></tr>
+</table>
+
+<h2 style="break-before: page; margin-top: 0">4. Area Car</h2>
+<ol>
+  <li><span class="k">Aggiungi la tua auto</span>: basta un nome. Puoi completare marca, modello, targa, anno, alimentazione e chilometri.</li>
+  <li>Con più auto, scegli quella da vedere con i pulsanti in alto; <span class="k">＋ Auto</span> ne aggiunge un’altra.</li>
+  <li><span class="k">Aggiorna km</span> quando leggi il contachilometri: l’app mostra la data dell’ultimo aggiornamento.</li>
+</ol>
+<table>
+  <tr><th>Sezione</th><th>Cosa registri</th></tr>
+  <tr><td><b>Scadenze</b></td><td>Revisione, assicurazione, bollo, tagliando, cambio gomme e altro, con <b>data</b> o <b>chilometri previsti</b> (almeno uno dei due).</td></tr>
+  <tr><td><b>Interventi</b></td><td>Data, chilometri, descrizione, officina e costo.</td></tr>
+  <tr><td><b>Rifornimenti</b></td><td>Litri, prezzo al litro, totale e chilometri. Il totale si calcola da litri × prezzo e si può correggere. Per le ricariche elettriche scrivi i kWh al posto dei litri e annotalo.</td></tr>
+  <tr><td><b>Spese</b> (in Altro)</td><td>Assicurazione, bollo, parcheggi, pedaggi… <b>Non ripetere</b> qui carburante e interventi: sono già contati.</td></tr>
+  <tr><td><b>Documenti e note</b> (in Altro)</td><td>Polizza, revisione, garanzia, soccorso stradale: scadenza, numero di telefono da toccare, link.</td></tr>
+</table>
+<p>Se inserisci un intervento o un rifornimento con più chilometri di quelli salvati, l’app aggiorna anche il chilometraggio dell’auto e te lo dice.</p>
+
+<div class="box tip"><b>Come si decidono «Scaduta» e «Imminente».</b> L’app <b>non calcola scadenze di legge</b>: le date e i chilometri li copi tu da libretto, polizza, ricevute o libretto di manutenzione. Una scadenza è <b>scaduta</b> quando la data è passata o i chilometri previsti sono raggiunti; è <b>imminente</b> quando mancano al massimo 30 giorni o 1.000 km, in base all’ultimo chilometraggio inserito. I promemoria si vedono aprendo l’app: <b>non arrivano notifiche</b>.</div>
+
+<h2>5. Modificare ed eliminare</h2>
+<p>Ogni scheda ha <span class="k">Modifica</span> ed <span class="k">Elimina</span>; prima di eliminare l’app chiede conferma. <b>Eliminando un’auto</b> si eliminano anche tutte le sue registrazioni.</p>
+
+<h2>6. Sincronizzazione</h2>
+<p>Accedi con lo stesso account su telefono, tablet o computer. In alto vedi lo stato, per esempio <i>«✓ Sincronizzato alle 14:32»</i>; le modifiche fatte altrove compaiono tornando sull’app o entro circa un minuto. Per salvare serve internet: senza rete l’app lo segnala e il modulo resta aperto.</p>
+
+<h2>7. Assistente AI (se attivato)</h2>
+<div class="box ai">
+  <ol>
+    <li>Apri <span class="k">Assistente</span> e scrivi una domanda: <i>«Quali scadenze ho questo mese?»</i>, <i>«Quanto ho speso per l’auto quest’anno?»</i>.</li>
+    <li>Controlla le sezioni spuntate: sono i dati che verranno inviati. Puoi toglierle o aggiungerle.</li>
+    <li>Premendo <span class="k">Chiedi</span> la domanda e quei dati vengono trasmessi al servizio <b>Google Gemini</b>. Targhe, numeri di telefono e link non vengono inviati; note e descrizioni sì.</li>
+    <li>Le risposte possono contenere errori: controlla le cifre importanti nelle schede.</li>
+  </ol>
+  Se compare «Assistente non disponibile», chi gestisce l’app deve configurare la chiave Gemini.
+</div>
+
+<h2>8. Backup e dati esistenti</h2>
+<p><span class="k">Backup</span> → <span class="k">Scarica il backup</span> salva casa e auto in un file. Da lì puoi anche importare: vedi un’anteprima e confermi; i dati si aggiungono senza cancellare. Importando due volte lo stesso file i dati risultano doppi. Nulla viene caricato da solo nel tuo account.</p>
+
+<h2>9. Sul telefono come un’app</h2>
+<ul>
+  <li><b>iPhone</b>: Safari → <span class="k">Condividi</span> → <span class="k">Aggiungi alla schermata Home</span>.</li>
+  <li><b>Android</b>: Chrome → tre puntini → <span class="k">Aggiungi a schermata Home</span>.</li>
+</ul>
+
+<h2>10. Se qualcosa non va</h2>
+<table>
+  <tr><th>Problema</th><th>Cosa fare</th></tr>
+  <tr><td><i>«Senza connessione…»</i></td><td>Controlla internet e riprova a salvare.</td></tr>
+  <tr><td><i>«Email o password non corrette»</i></td><td>Ricontrolla maiuscole e spazi.</td></tr>
+  <tr><td>Password dimenticata</td><td>Se non vedi il link per recuperarla, chiedi a chi gestisce l’app.</td></tr>
+  <tr><td><i>«La sessione è scaduta»</i></td><td><span class="k">Esci</span> e accedi di nuovo.</td></tr>
+  <tr><td><i>«L’area Car non è ancora pronta online»</i></td><td>Chi gestisce l’app deve aggiornare il database (vedi la guida di configurazione).</td></tr>
+</table>
+</body>
+</html>

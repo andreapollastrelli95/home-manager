@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import { emptyRows, type NewRow, type Row, type Rows, type TableName, TABLES } from './model'
+import { CAR_CHILD_TABLES, emptyRows, type ImportRows, type NewRow, type Row, type Rows, type TableName, TABLES } from './model'
 
 export interface Backend {
-  load(): Promise<{ rows: Rows; homeName: string }>
+  load(): Promise<{ rows: Rows; homeName: string; carReady: boolean }>
   add(table: TableName, row: NewRow): Promise<Row>
   update(table: TableName, id: Row['id'], patch: NewRow): Promise<Row>
   remove(table: TableName, id: Row['id']): Promise<void>
@@ -16,6 +16,7 @@ export interface SyncInfo { state: SyncState; message?: string; at?: Date }
 interface Ctx {
   rows: Rows
   homeName: string
+  carReady: boolean
   status: 'loading' | 'ready' | 'error'
   loadError: string
   sync: SyncInfo
@@ -23,7 +24,7 @@ interface Ctx {
   add(table: TableName, row: NewRow): Promise<Row>
   update(table: TableName, id: Row['id'], patch: NewRow): Promise<void>
   remove(table: TableName, id: Row['id']): Promise<void>
-  addMany(rows: Record<TableName, NewRow[]>): Promise<void>
+  addMany(rows: ImportRows): Promise<void>
   renameHome(name: string): Promise<void>
   reload(): Promise<void>
 }
@@ -50,6 +51,7 @@ export function friendlyError(e: unknown, action = 'salvare'): string {
 export function DataProvider({ backend, autoRefresh, children }: { backend: Backend; autoRefresh?: boolean; children: ReactNode }) {
   const [rows, setRows] = useState<Rows>(emptyRows())
   const [homeName, setHomeName] = useState('La mia casa')
+  const [carReady, setCarReady] = useState(true)
   const [status, setStatus] = useState<Ctx['status']>('loading')
   const [loadError, setLoadError] = useState('')
   const [sync, setSync] = useState<SyncInfo>({ state: 'idle' })
@@ -65,7 +67,7 @@ export function DataProvider({ backend, autoRefresh, children }: { backend: Back
         const r = await backend.load()
         // se nel frattempo c'è stata una scrittura, questa lettura potrebbe non includerla: si riprova
         if (before !== seq.current || pending.current > 0) { await new Promise((res) => setTimeout(res, 300)); continue }
-        setRows(r.rows); setHomeName(r.homeName); setStatus('ready'); setLoadError('')
+        setRows(r.rows); setHomeName(r.homeName); setCarReady(r.carReady); setStatus('ready'); setLoadError('')
         setSync((s) => (s.state === 'saving' ? s : { state: 'idle', at: new Date() }))
         return
       } catch (e) {
@@ -115,7 +117,7 @@ export function DataProvider({ backend, autoRefresh, children }: { backend: Back
   }
 
   const ctx: Ctx = {
-    rows, homeName, status, loadError, sync, online,
+    rows, homeName, carReady, status, loadError, sync, online,
     add: (table, row) =>
       run(async () => {
         const saved = await backend.add(table, row)
@@ -132,13 +134,30 @@ export function DataProvider({ backend, autoRefresh, children }: { backend: Back
     remove: (table, id) =>
       run(async () => {
         await backend.remove(table, id)
-        setRows((p) => ({ ...p, [table]: p[table].filter((r) => r.id !== id) }))
+        setRows((p) => {
+          const next = { ...p, [table]: p[table].filter((r) => r.id !== id) }
+          if (table === 'vehicles') for (const c of CAR_CHILD_TABLES) next[c] = next[c].filter((r) => r.vehicle_id !== id)
+          return next
+        })
       }, 'eliminare'),
     addMany: async (data) => {
-      await run(async () => {
-        for (const t of TABLES) if (data[t].length) await backend.addMany(t, data[t])
-      }, 'importare')
-      await reload()
+      try {
+        await run(async () => {
+          // prima le auto, una per volta, per conoscere i nuovi id a cui collegare le registrazioni
+          const ids = new Map<string, Row['id']>()
+          for (const { _ref, ...v } of data.vehicles) {
+            const saved = await backend.add('vehicles', v)
+            if (_ref) ids.set(String(_ref), saved.id)
+          }
+          for (const t of TABLES) {
+            if (t === 'vehicles' || !data[t].length) continue
+            const isCar = (CAR_CHILD_TABLES as TableName[]).includes(t)
+            await backend.addMany(t, isCar ? data[t].map((r) => ({ ...r, vehicle_id: ids.get(String(r.vehicle_id)) })) : data[t])
+          }
+        }, 'importare')
+      } finally {
+        await reload()
+      }
     },
     renameHome: (name) =>
       run(async () => {
