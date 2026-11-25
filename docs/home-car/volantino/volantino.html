@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home e Car Manager – volantino A5 fronte/retro</title>
+<!--
+  SORGENTE MODIFICABILE DEL VOLANTINO (A5, fronte e retro).
+  Non stampare questo file: contiene segnaposto {{...}}.
+  Testi e colori si cambiano qui; indirizzo e QR code li inserisce lo script:
+    npm run volantino -- https://INDIRIZZO-DELL-APP/ --verifica
+  (senza indirizzo crea la bozza "volantino-bozza.*", senza QR code).
+-->
+<style>
+  @page { size: 148mm 210mm; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #1e293b; -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #cbd5e1; }
+  .page { position: relative; width: 148mm; height: 210mm; overflow: hidden; background: #fffdf8; break-after: page; page-break-after: always; margin: 0 auto; }
+  .page:last-child { break-after: auto; page-break-after: auto; }
+  @media screen { .page { margin: 8mm auto; box-shadow: 0 2mm 8mm rgba(0,0,0,.25); } }
+  .frame { position: absolute; inset: 0; width: 148mm; height: 210mm; }
+  .content { position: absolute; inset: 16mm 15mm; display: flex; flex-direction: column; }
+
+  /* FRONTE */
+  h1 { margin: 12mm 0 0; font-size: 30pt; line-height: 1.1; text-align: center; color: #1e3a8a; letter-spacing: -.5pt; }
+  .claim { text-align: center; font-size: 14.5pt; line-height: 1.35; margin: 6mm 3mm 0; color: #334155; }
+  .claim b { color: #1d4ed8; }
+  .scan { margin-top: auto; margin-bottom: auto; text-align: center; }
+  .qrrow { display: grid; grid-template-columns: 1fr 54mm 1fr; align-items: center; justify-items: center; column-gap: 3mm; }
+  .side svg { width: 26mm; height: 26mm; display: block; }
+  .side span { display: block; font-weight: 700; font-size: 13pt; margin-top: 1mm; }
+  .qr { width: 54mm; height: 54mm; background: #fff; border: 1.2mm solid #1e3a8a; border-radius: 4mm; padding: 3mm; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .qr.placeholder { border-style: dashed; border-color: #b45309; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10.5pt; color: #92400e; line-height: 1.3; padding: 4mm; }
+  .scan p { margin: 6mm 0 2.5mm; font-size: 13pt; font-weight: 600; }
+  .url { display: inline-block; max-width: 100%; font-size: 11pt; font-weight: 600; color: #1e3a8a; background: #e0e7ff; border-radius: 3mm; padding: 2mm 4mm; word-break: break-all; }
+  .url.placeholder { color: #92400e; background: #fef3c7; font-weight: 500; }
+  .foot { font-size: 10pt; color: #64748b; margin-top: 3mm; }
+  .bozza { position: absolute; top: 14mm; left: 50%; transform: translateX(-50%); background: #dc2626; color: #fff; font-size: 8.5pt; font-weight: 700; padding: 1mm 4mm; border-radius: 2mm; white-space: nowrap; z-index: 3; }
+
+  /* RETRO */
+  h2 { margin: 0 0 2mm; font-size: 14pt; color: #1e3a8a; text-align: center; }
+  ol { margin: 0; padding-left: 5mm; font-size: 10pt; line-height: 1.35; }
+  .areas { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-top: 3mm; }
+  .area { border: .4mm solid #cbd5e1; border-radius: 3mm; padding: 2.5mm 3mm; background: #fff; }
+  .area h3 { margin: 0 0 1mm; font-size: 11.5pt; display: flex; align-items: center; gap: 2mm; color: #1e3a8a; }
+  .area h3 svg { width: 7mm; height: 7mm; }
+  .area ul { margin: 0; padding-left: 4mm; font-size: 9.5pt; line-height: 1.32; }
+  .box { border-radius: 3mm; padding: 2.2mm 3.5mm; font-size: 9.5pt; line-height: 1.32; margin-top: 3mm; }
+  .box b.t { display: block; font-size: 10.5pt; margin-bottom: .5mm; }
+  .privacy { background: #dcfce7; border: .5mm solid #16a34a; color: #14532d; }
+  .ai { background: #ede9fe; border: .5mm solid #7c3aed; color: #4c1d95; }
+  .back-url { margin-top: auto; text-align: center; font-size: 9.5pt; color: #475569; padding-top: 2mm; }
+  .back-url strong { color: #1e3a8a; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="casa" viewBox="0 0 100 100">
+      <path d="M50 8 L96 46 L88 46 L88 90 L12 90 L12 46 L4 46 Z" fill="currentColor"/>
+      <path d="M50 8 L96 46 L4 46 Z" fill="currentColor" opacity=".78"/>
+      <rect x="42" y="60" width="16" height="30" rx="2" fill="#fffdf8"/>
+      <rect x="20" y="54" width="14" height="14" rx="2" fill="#fffdf8"/>
+      <rect x="66" y="54" width="14" height="14" rx="2" fill="#fffdf8"/>
+    </symbol>
+    <symbol id="auto" viewBox="0 0 100 100">
+      <path d="M22 28 Q25 20 34 20 L66 20 Q75 20 78 28 L85 46 Q94 48 94 58 L94 72 Q94 76 90 76 L10 76 Q6 76 6 72 L6 58 Q6 48 15 46 Z" fill="currentColor"/>
+      <path d="M30 29 Q31 27 34 27 L66 27 Q69 27 70 29 L76 45 L24 45 Z" fill="#fffdf8"/>
+      <circle cx="21" cy="60" r="6" fill="#fffdf8"/><circle cx="79" cy="60" r="6" fill="#fffdf8"/>
+      <rect x="37" y="58" width="26" height="6" rx="3" fill="#fffdf8"/>
+      <rect x="14" y="74" width="16" height="12" rx="3" fill="currentColor"/><rect x="70" y="74" width="16" height="12" rx="3" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===================== FRONTE ===================== -->
+<section class="page" id="fronte">
+  <svg class="frame" viewBox="0 0 148 210" aria-hidden="true"><use href="#casa" x="2.00" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="2.00" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="11.60" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="11.60" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="21.20" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="21.20" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="30.80" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="30.80" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="40.40" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="40.40" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="50.00" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="50.00" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="59.60" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="59.60" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="69.20" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="69.20" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="78.80" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="78.80" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="88.40" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="88.40" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="98.00" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="98.00" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="107.60" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="107.60" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="117.20" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="117.20" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="126.80" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="126.80" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="136.40" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="136.40" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="11.60" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="11.60" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="21.20" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="21.20" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="30.80" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="30.80" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="40.40" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="40.40" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="50.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="50.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="59.60" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="59.60" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="69.20" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="69.20" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="78.80" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="78.80" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="88.40" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="88.40" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="98.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="98.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="107.60" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="107.60" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="117.20" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="117.20" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="126.80" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="126.80" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="136.40" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="136.40" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="146.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="146.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="155.60" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="155.60" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="165.20" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="165.20" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="174.80" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="174.80" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="184.40" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="184.40" width="9" height="9" style="color:#f59e0b"/></svg>
+  
+  <div class="content">
+    <h1>Home e Car<br>Manager</h1>
+    <p class="claim">La tua <b>casa</b> e le tue <b>auto</b> in ordine,<br>dal telefono e dal computer.</p>
+
+    <div class="scan">
+      <div class="qrrow">
+        <div class="side" style="color:#1d4ed8"><svg><use href="#casa"/></svg><span>Home</span></div>
+        <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#0f172a" d="M0 0.5h7m4 0h3m2 0h2m1 0h2m2 0h1m2 0h7M0 1.5h1m5 0h1m2 0h1m3 0h3m1 0h1m3 0h2m3 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h2m2 0h2m2 0h3m1 0h3m3 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m5 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h1m4 0h6m1 0h2m4 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h3m3 0h2m2 0h5M0 8.5h1m1 0h5m2 0h7m1 0h1m1 0h2m1 0h3m1 0h5M3 9.5h1m1 0h1m2 0h1m1 0h3m5 0h6m2 0h2m1 0h4M0 10.5h1m5 0h2m4 0h1m2 0h2m1 0h1m1 0h2m2 0h3m1 0h1m1 0h2M1 11.5h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h3m2 0h1m1 0h6m1 0h3M0 12.5h1m1 0h1m1 0h4m2 0h1m1 0h1m2 0h1m2 0h1m3 0h1m1 0h2m1 0h3m2 0h1M0 13.5h1m2 0h3m1 0h2m1 0h2m1 0h4m2 0h1m1 0h1m1 0h2m1 0h2m1 0h4M1 14.5h2m1 0h5m1 0h3m8 0h1m3 0h2m1 0h4M0 15.5h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m3 0h2m1 0h3M1 16.5h1m1 0h1m2 0h3m2 0h1m1 0h1m2 0h2m2 0h1m1 0h1m2 0h1m1 0h2m3 0h1M1 17.5h2m1 0h1m2 0h7m3 0h4m2 0h1m2 0h2m1 0h2m1 0h1M2 18.5h1m2 0h2m2 0h3m1 0h5m2 0h1m1 0h1m1 0h1m1 0h3m1 0h2M3 19.5h1m5 0h2m2 0h1m1 0h1m1 0h2m2 0h1m5 0h4M1 20.5h2m3 0h3m1 0h1m5 0h1m3 0h1m1 0h1m1 0h2m1 0h3m1 0h1M0 21.5h4m1 0h1m5 0h5m1 0h4m2 0h1m2 0h1m3 0h1m1 0h1M0 22.5h1m1 0h2m2 0h3m1 0h1m1 0h5m3 0h1m1 0h1m8 0h1M0 23.5h1m1 0h3m7 0h4m2 0h1m1 0h3m2 0h1m1 0h2m1 0h1M0 24.5h1m2 0h6m2 0h1m1 0h1m1 0h3m4 0h7m2 0h1M8 25.5h1m1 0h2m6 0h4m2 0h1m3 0h1m1 0h3M0 26.5h7m2 0h1m2 0h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2M0 27.5h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h5m3 0h4M0 28.5h1m1 0h3m1 0h1m1 0h1m1 0h4m4 0h2m2 0h1m1 0h6m2 0h1M0 29.5h1m1 0h3m1 0h1m1 0h10m1 0h2m4 0h1m2 0h2m1 0h2M0 30.5h1m1 0h3m1 0h1m1 0h4m2 0h1m5 0h4m2 0h2M0 31.5h1m5 0h1m2 0h1m3 0h2m1 0h1m1 0h4m3 0h2m1 0h3M0 32.5h7m1 0h3m1 0h1m1 0h1m2 0h1m4 0h6m3 0h1"/></svg>
+</div>
+        <div class="side" style="color:#dc2626"><svg><use href="#auto"/></svg><span>Car</span></div>
+      </div>
+      <p>Inquadra il QR code con la fotocamera</p>
+      <span class="url">https://andreapollastrelli95.github.io/home-manager/</span>
+      <div class="foot">oppure scrivi l’indirizzo nel browser</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RETRO ===================== -->
+<section class="page" id="retro">
+  <svg class="frame" viewBox="0 0 148 210" aria-hidden="true"><use href="#casa" x="2.00" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="2.00" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="11.60" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="11.60" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="21.20" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="21.20" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="30.80" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="30.80" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="40.40" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="40.40" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="50.00" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="50.00" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="59.60" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="59.60" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="69.20" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="69.20" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="78.80" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="78.80" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="88.40" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="88.40" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="98.00" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="98.00" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="107.60" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="107.60" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="117.20" y="2.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="117.20" y="199.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="126.80" y="2.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="126.80" y="199.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="136.40" y="2.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="136.40" y="199.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="11.60" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="11.60" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="21.20" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="21.20" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="30.80" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="30.80" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="40.40" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="40.40" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="50.00" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="50.00" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="59.60" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="59.60" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="69.20" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="69.20" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="78.80" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="78.80" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="88.40" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="88.40" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="98.00" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="98.00" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="107.60" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="107.60" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="117.20" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="117.20" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="126.80" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="126.80" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="136.40" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="136.40" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="146.00" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="146.00" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="155.60" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="155.60" width="9" height="9" style="color:#f59e0b"/><use href="#casa" x="2.00" y="165.20" width="9" height="9" style="color:#16a34a"/><use href="#casa" x="137.00" y="165.20" width="9" height="9" style="color:#dc2626"/><use href="#casa" x="2.00" y="174.80" width="9" height="9" style="color:#7c3aed"/><use href="#casa" x="137.00" y="174.80" width="9" height="9" style="color:#0891b2"/><use href="#casa" x="2.00" y="184.40" width="9" height="9" style="color:#1d4ed8"/><use href="#casa" x="137.00" y="184.40" width="9" height="9" style="color:#f59e0b"/></svg>
+  <div class="content">
+    <h2>Come si inizia</h2>
+    <ol>
+      <li><b>Apri il link</b> inquadrando il QR code o scrivendo l’indirizzo.</li>
+      <li><b>Crea il tuo account</b> con email e password (almeno 8 caratteri). Le volte dopo usa <b>Accedi</b> con gli stessi dati.</li>
+      <li><b>Scegli l’area</b>: <b>Home</b> per la casa, <b>Car</b> per le auto. Puoi passare dall’una all’altra quando vuoi con i pulsanti in alto.</li>
+    </ol>
+
+    <div class="areas">
+      <div class="area">
+        <h3><svg style="color:#1d4ed8"><use href="#casa"/></svg>Home</h3>
+        <ul>
+          <li>Spese e bollette</li>
+          <li>Scadenze e manutenzioni</li>
+          <li>Lista della spesa</li>
+          <li>Inventario</li>
+          <li>Documenti (titolo e link)</li>
+          <li>Arretrati e prossime scadenze in evidenza</li>
+        </ul>
+      </div>
+      <div class="area">
+        <h3><svg style="color:#dc2626"><use href="#auto"/></svg>Car</h3>
+        <ul>
+          <li>Una o più auto, con chilometri</li>
+          <li>Revisione, assicurazione, bollo, tagliando, gomme</li>
+          <li>Registro degli interventi</li>
+          <li>Rifornimenti e spese</li>
+          <li>Documenti e soccorso stradale</li>
+          <li>Date e km li inserisci tu</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="box privacy"><b class="t">🔒 I tuoi dati sono solo tuoi</b>Ogni persona ha il proprio account e i propri dati privati: nulla viene condiviso con i familiari. Con lo <b>stesso account</b> ritrovi gli stessi dati su telefono, tablet e computer.</div>
+    <div class="box ai"><b class="t">✨ Assistente AI (se attivato)</b>Chiedi per esempio «Quali scadenze ho questo mese?». Vedi quali sezioni verranno inviate e, quando premi «Chiedi», la domanda e quei dati vanno al servizio <b>Google Gemini</b>. Controlla sempre le cifre importanti.</div>
+    <div class="box privacy"><b class="t">📱 Su iPhone</b>Apri il link con Safari, tocca Condividi e «Aggiungi alla schermata Home».</div>
+
+    <div class="back-url">Indirizzo: <strong>https://andreapollastrelli95.github.io/home-manager/</strong></div>
+  </div>
+</section>
+
+</body>
+</html>

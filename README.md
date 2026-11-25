@@ -4,4 +4,4 @@ Gestionale di casa e auto. **Home**: spese e bollette, scadenze e manutenzioni, 
 
 | ![Home](docs/screenshot-v2-home.png) | ![Spese e bollette](docs/screenshot-v2-spese.png) | ![Telefono](docs/screenshot-v2-telefono-home.png) |
 
-[Guida all'uso](docs/home-car/guida/guida.pdf) · [Accesso, sincronizzazione e chiave Gemini](docs/configurazione-supabase.md) · `npm run dev` / `npm run dev:demo`
+[Volantino A5](docs/home-car/volantino/volantino.pdf) · [Guida all'uso](docs/home-car/guida/guida.pdf) · [Accesso, sincronizzazione e chiave Gemini](docs/configurazione-supabase.md) · `npm run dev` / `npm run dev:demo`
