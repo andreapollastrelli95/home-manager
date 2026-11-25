@@ -220,3 +220,21 @@ create trigger crea_casa_dopo_registrazione
 
 -- La funzione del trigger non deve essere richiamabile dal client
 revoke all on function public.crea_casa_per_nuovo_utente() from public, anon, authenticated;
+
+-- ---------- Chiave Gemini personale ----------
+-- Ogni persona usa la propria chiave. La tabella è accessibile SOLO alla funzione "assistente" (ruolo del server):
+-- il browser non può leggerla né scriverla, e la chiave vi è salvata cifrata.
+create table if not exists public.ai_keys (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  key_enc    text not null check (char_length(key_enc) <= 600),
+  hint       text not null default '' check (char_length(hint) <= 8),
+  updated_at timestamptz not null default now()
+);
+alter table public.ai_keys enable row level security;   -- nessuna regola: nessun accesso dal client
+revoke all on public.ai_keys from anon, authenticated;
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    grant select, insert, update, delete on public.ai_keys to service_role;
+  end if;
+end $$;

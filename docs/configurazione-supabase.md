@@ -9,7 +9,7 @@ Fai i passi **in quest'ordine**:
 1. (Consigliato) Ogni persona scarica un backup dalla pagina **Backup**.
 2. Supabase → **SQL Editor** → incolla tutto [`supabase/schema.sql`](../supabase/schema.sql) → **Run**. Aggiunge solo le sei tabelle delle auto: le tabelle di casa e i loro dati non cambiano. L'editor può avvisare di operazioni «distruttive» perché lo script ricrea le regole di accesso: non cancella dati.
 3. Pubblica la nuova versione (merge del ramo in `main`).
-4. Facoltativo: attiva l'assistente (sezione 9).
+4. Per l'assistente vedi la sezione 9.
 
 Se pubblichi prima di eseguire lo schema, l'area Home continua a funzionare e l'area Car mostra cosa manca, senza salvare nulla.
 
@@ -104,15 +104,17 @@ In entrambi i casi c'è un'anteprima e serve una conferma: gli elementi vengono 
 
 ## 9. Assistente AI con Gemini (facoltativo)
 
-L'assistente usa Google Gemini tramite la funzione Supabase [`assistente`](../supabase/functions/assistente/index.ts): la chiave **resta sul server** e non finisce mai nell'app, nel repository o nei log. Finché manca, la pagina «Assistente» mostra le istruzioni e non invia nessun dato.
+**Ogni persona usa la propria chiave Gemini**: la inserisce dall'app (pagina **Assistente**). Non esiste una chiave condivisa.
 
-1. Crea una chiave su <https://aistudio.google.com> (**Get API key**) e scegli il nome del modello tra quelli disponibili per il tuo account.
-2. Installa la [Supabase CLI](https://supabase.com/docs/guides/cli), poi `supabase login` e `supabase link --project-ref IL_TUO_PROJECT_REF`.
-3. Copia `supabase/functions/.env.example` in `supabase/functions/.env` (ignorato da Git), inserisci `GEMINI_API_KEY` e `GEMINI_MODEL`, poi `supabase secrets set --env-file supabase/functions/.env`. In alternativa: dashboard → **Edge Functions → Secrets**.
-4. Pubblica la funzione: `supabase functions deploy assistente`
-5. Apri l'app → **Assistente** → **Ricontrolla**. Non serve ripubblicare il sito.
+Chi gestisce l'app, una volta sola:
 
-Prima di ogni invio la pagina mostra le sezioni che verranno trasmesse (scelte in base alla domanda e modificabili). Targhe, telefoni e link non vengono inviati; note e descrizioni sì. La funzione accetta solo utenti con il login. Le richieste consumano la quota del tuo account Gemini, anche quelle dei familiari; sul piano gratuito Google può usare i dati inviati per migliorare i suoi servizi: controlla le condizioni del tuo piano.
+1. Esegui `supabase/schema.sql` (crea anche la tabella `ai_keys`).
+2. Imposta il nome del modello da usare per tutti: dashboard → **Edge Functions → Secrets** → `GEMINI_MODEL` (non è un segreto).
+3. Pubblica la funzione: `supabase functions deploy assistente --no-verify-jwt` (il login lo controlla la funzione stessa).
+
+Come è protetta la chiave di ogni persona: viaggia in HTTPS fino alla funzione, viene verificata con Google, salvata **cifrata** nella tabella `ai_keys` che il browser non può leggere né scrivere, e non viene più mostrata (solo le ultime 4 cifre). Non è nel codice, nel repository, nei backup o nei log. Chi amministra il progetto Supabase ha il controllo del server e, in linea di principio, potrebbe accedervi. Se si rigenera la chiave `service_role` del progetto, ognuno deve reinserire la propria.
+
+Prima di ogni invio la pagina mostra le sezioni che verranno trasmesse (scelte in base alla domanda e modificabili). Targhe, telefoni e link non vengono inviati; note e descrizioni sì.
 
 ## 10. Cose da sapere
 

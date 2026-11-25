@@ -66,4 +66,12 @@ for (const t of ['homes', 'expenses', 'deadlines', 'items', 'shopping', 'docs', 
 r = await as('anon', null, `insert into expenses (descrizione) values ('x')`); check('anon non inserisce', !!r.error)
 r = await as('authenticated', A, `select crea_casa_per_nuovo_utente()`); check('funzione trigger non richiamabile dal client', !!r.error, r.error ?? '')
 r = (await db.query(`select count(*)::int c from pg_tables where schemaname='public' and not rowsecurity`)).rows[0].c; check('tutte le tabelle public hanno RLS', r === 0)
+// chiavi Gemini: nessun accesso dal client, nemmeno alle proprie
+await db.exec(`insert into public.ai_keys (user_id, key_enc, hint) values ('${A}', 'cifrata', '1234')`)
+for (const [role, uid] of [['anon', null], ['authenticated', A], ['authenticated', B]]) {
+  const who = uid === A ? 'A' : uid === B ? 'B' : 'anon'
+  r = await as(role, uid, 'select * from ai_keys'); check(`${who} non legge le chiavi AI`, !!r.error)
+  r = await as(role, uid, `insert into ai_keys (user_id, key_enc) values ('${B}', 'x')`); check(`${who} non scrive chiavi AI`, !!r.error)
+  r = await as(role, uid, 'delete from ai_keys'); check(`${who} non elimina chiavi AI`, !!r.error)
+}
 console.log(results.join('\n'))
